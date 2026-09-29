@@ -44,7 +44,7 @@ class categoryController extends Controller
         if (!$categoryID) {
             return response()->json([
                 'message' => 'Category not found'
-            ], 404);    
+            ], 404);
         }
         return response()->json([
             'message' => 'Category retrieved successfully',
@@ -57,7 +57,23 @@ class categoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = categories::find($id);
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category not found'
+            ], 404);
+        }
+        $dataValidated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'slug' => 'sometimes|required|string|max:255|unique:categories,slug,' . $id,
+        ]);
+
+        $category->update($dataValidated);
+
+        return response()->json([
+            'message' => 'Category updated successfully',
+            'data' => $category
+        ]);
     }
 
     /**
@@ -65,6 +81,15 @@ class categoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $categoryID = categories::find($id);
+        if (!$categoryID) {
+            return response()->json([
+                'message' => 'Category not found'
+            ], 404);
+        }
+        $categoryID->delete();
+        return response()->json([
+            'message' => 'Category deleted successfully'
+        ]);
     }
 }
